@@ -1,0 +1,45 @@
+body {
+    background-color: rgba(33, 37, 41, 1);
+}
+
+/* === header === */
+
+.nav-link {
+    color: #fff;
+}
+
+.active{
+    border-bottom: 1px solid #C68C2A;
+    font-size: 1rem;
+    color: #C68C2A;
+    margin: 0px 5px;
+}
+
+.nav-link:hover {
+    border-bottom: 1px solid #C68C2A; 
+    color: #C68C2A;
+}
+
+.nav_bar_item {
+    margin-right: 10px;
+}
+
+.logo {
+    height: 100%;
+    width: 100%;
+    object-fit: contain;
+}
+
+.navbar-brand {
+    height: 50px;
+    width: 70px;
+}
+
+/* === Index === */
+
+.main {
+    height: 100vh;
+    padding-top: 70px;
+    background-color: rgba(33, 37, 41, 1);
+    color: #fff;
+}
