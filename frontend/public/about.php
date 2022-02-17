@@ -34,7 +34,7 @@ require_once('header.php');
             </div>
         </div>
     </div>
-</div>
+</div> <!-- done -->
 
 <?php
 require_once('foot.php');

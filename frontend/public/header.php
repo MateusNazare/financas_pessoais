@@ -20,11 +20,72 @@
                     </li>
                 </ul>
                 <form class="d-flex">
-                    <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
-                    <button class="btn btn-outline-success" type="submit">Search</button>
+                    <input class="form-control me-2" id = "search" type="search" placeholder="Search" aria-label="Search">
+                    <button onclick = "buscarPorId()" class="btn btn-outline-success" type="submit">Search</button>
                 </form>
                 <a class="btn btn-outline-primary mx-2" href="login.php">Entrar</a>
             </div>
         </div>
     </nav>
 </header>
+
+<script>
+    function addTransaction() {
+        const url = "http://127.0.0.1:3000/transactions";
+
+        let id = document.getElementById('search').value;
+
+        fetch(url, {
+            method: "POST",
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + token,
+            },
+            body: JSON.stringify({
+                id: parseInt(id)
+            }),
+        }).then(
+            async (response) => {
+                let contentType = response.headers.get("content-type");
+
+                if (response.status === 200) {
+
+                    json = await response.json();
+
+                    window.sessionStorage.setItem("token", json.token);
+                    window.sessionStorage.setItem("user", JSON.stringify(json.user));
+                    
+                    console.log(window.sessionStorage.getItem("token"));
+                    console.log(window.sessionStorage.getItem("user"));
+
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Sucesso',
+                        text: 'Inserido com sucesso!',
+                    }).then((result) => {
+                        window.location.replace('index.php');     
+                    });
+
+                    return;
+                }
+
+                if (contentType && contentType.indexOf("application/json") !== -1) {
+                    return response.json().then(function(json) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Opss',
+                            text: json.message,
+                        });
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Opss',
+                        text: 'Falha ao inserir!',
+                    });
+                }
+            }
+        );
+    }
+</script>

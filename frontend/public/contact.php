@@ -18,10 +18,69 @@ require_once('header.php');
                 <label for="message" class="form-label">Mensagem</label>
                 <textarea class="form-control" id="message"></textarea>
             </div>
-            <button type="submit" class="btn btn-primary">Submit</button>
+            <button onclick="createMessage()" type="submit" class="btn btn-primary">Submit</button>
         </form>
     </div>
 </div>
+
+<script>
+    function createMessage() {
+        const url = "http://127.0.0.1:3000/message";
+
+        let name = document.getElementById('name').value;
+        let email = document.getElementById('email').value;
+        let message = document.getElementById('message').value;
+
+        let token = window.sessionStorage.getItem("token");
+
+        fetch(url, {
+            method: "POST",
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                name: name,
+                email: email,
+                message: message
+            }),
+        }).then(
+            (response) => {
+                let contentType = response.headers.get("content-type");
+
+                if (response.status === 201) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Sucesso',
+                        text: 'Mensagem enviada com sucesso!',
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            window.location.replace('index.php');
+                        }
+                    });
+
+                    return;
+                }
+
+                if (contentType && contentType.indexOf("application/json") !== -1) {
+                    return response.json().then(function(json) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Opss',
+                            text: json.message,
+                        });
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Opss',
+                        text: 'Falha ao enviar mensagem!',
+                    });
+                }
+            }
+        );
+    }
+</script>
 
 <?php
 require_once('foot.php');

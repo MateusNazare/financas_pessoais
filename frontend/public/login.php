@@ -29,13 +29,13 @@ require_once('head.php');
     </div>
 </div>
 
-<!-- <script type="text/javascript">
+ <script type="text/javascript">
     console.log("teste")
     function toLogin() {
         const url = "http://127.0.0.1:3000/sessions";
 
+        let email = document.getElementById('email').value;
         let password = document.getElementById('password').value;
-        let ra = document.getElementById('ra').value;
 
         fetch(url, {
             method: "POST",
@@ -45,7 +45,7 @@ require_once('head.php');
             },
             body: JSON.stringify({
                 password: password,
-                ra: parseInt(ra),
+                email: email,
             }),
         }).then(
             async (response) => {
@@ -90,7 +90,7 @@ require_once('head.php');
             }
         );
     }
-</script> -->
+</script>
 
 <?php
 require_once('foot.php');

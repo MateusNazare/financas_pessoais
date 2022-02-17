@@ -10,5 +10,5 @@
     <link href="https://cdn.datatables.net/1.11.4/css/jquery.dataTables.min.css" rel="stylesheet">
     <link href="assets/css/style.css" rel="stylesheet">
 
-</head>
+</head> <!-- done -->
 <body>

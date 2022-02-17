@@ -36,11 +36,10 @@ require_once('head.php');
         const url = "http://127.0.0.1:3000/users";
 
         let name = document.getElementById('name').value;
-        let ra = document.getElementById('ra').value;
-        let phone = document.getElementById('phone').value;
+        let email = document.getElementById('email').value;
         let password = document.getElementById('password').value;
 
-        console.log(name, ra, phone, password);
+        console.log(name, email, password);
 
         fetch(url, {
             method: "POST",
@@ -50,8 +49,7 @@ require_once('head.php');
             },
             body: JSON.stringify({
                 name: name,
-                ra: parseInt(ra),
-                phone: phone,
+                email: email,
                 password: password,
             }),
         }).then(

@@ -108,7 +108,7 @@ require_once('header.php');
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
-                <button type="button" class="btn btn-primary">Cadastrar</button>
+                <button onclick="addTransaction()" type="button" class="btn btn-primary">Cadastrar</button>
             </div>
         </div>
     </div>
@@ -141,4 +141,204 @@ require_once('foot.php');
 
         });
     });
+
+    function addTransaction() {
+        const url = "http://127.0.0.1:3000/transactions";
+
+        let title = document.getElementById('title').value;
+        let value = document.getElementById('value').value;
+        let type = document.getElementById('type').value;
+        let category = document.getElementById('category').value;
+
+        fetch(url, {
+            method: "POST",
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + token,
+            },
+            body: JSON.stringify({
+                title: title,
+                value: parseInt(value),
+                type: type,
+                category: category
+            }),
+        }).then(
+            async (response) => {
+                let contentType = response.headers.get("content-type");
+
+                if (response.status === 200) {
+
+                    json = await response.json();
+
+                    window.sessionStorage.setItem("token", json.token);
+                    window.sessionStorage.setItem("user", JSON.stringify(json.user));
+                    
+                    console.log(window.sessionStorage.getItem("token"));
+                    console.log(window.sessionStorage.getItem("user"));
+
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Sucesso',
+                        text: 'Inserido com sucesso!',
+                    }).then((result) => {
+                        window.location.replace('index.php');     
+                    });
+
+                    return;
+                }
+
+                if (contentType && contentType.indexOf("application/json") !== -1) {
+                    return response.json().then(function(json) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Opss',
+                            text: json.message,
+                        });
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Opss',
+                        text: 'Falha ao inserir!',
+                    });
+                }
+            }
+        );
+    }
+
+    function delete() {
+        const url = "http://127.0.0.1:3000/transactions";
+
+        let title = document.getElementById('title').value;
+        let value = document.getElementById('value').value;
+        let type = document.getElementById('type').value;
+        let category = document.getElementById('category').value;
+
+        fetch(url, {
+            method: "POST",
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + token,
+            },
+            body: JSON.stringify({
+                title: title,
+                value: parseInt(value),
+                type: type,
+                category: category
+            }),
+        }).then(
+            async (response) => {
+                let contentType = response.headers.get("content-type");
+
+                if (response.status === 200) {
+
+                    json = await response.json();
+
+                    window.sessionStorage.setItem("token", json.token);
+                    window.sessionStorage.setItem("user", JSON.stringify(json.user));
+                    
+                    console.log(window.sessionStorage.getItem("token"));
+                    console.log(window.sessionStorage.getItem("user"));
+
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Sucesso',
+                        text: 'Inserido com sucesso!',
+                    }).then((result) => {
+                        window.location.replace('index.php');     
+                    });
+
+                    return;
+                }
+
+                if (contentType && contentType.indexOf("application/json") !== -1) {
+                    return response.json().then(function(json) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Opss',
+                            text: json.message,
+                        });
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Opss',
+                        text: 'Falha ao inserir!',
+                    });
+                }
+            }
+        );
+    }
+
+    function atualizar() {
+        const url = "http://127.0.0.1:3000/transactions/{id}";
+
+        let title = document.getElementById('title').value;
+        let value = document.getElementById('value').value;
+        let type = document.getElementById('type').value;
+        let category = document.getElementById('category').value;
+
+        fetch(url, {
+            method: "POST",
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + token,
+            },
+            body: JSON.stringify({
+                title: title,
+                value: parseInt(value),
+                type: type,
+                category: category
+            }),
+        }).then(
+            async (response) => {
+                let contentType = response.headers.get("content-type");
+
+                if (response.status === 200) {
+
+                    json = await response.json();
+
+                    window.sessionStorage.setItem("token", json.token);
+                    window.sessionStorage.setItem("user", JSON.stringify(json.user));
+                    
+                    console.log(window.sessionStorage.getItem("token"));
+                    console.log(window.sessionStorage.getItem("user"));
+
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Sucesso',
+                        text: 'Inserido com sucesso!',
+                    }).then((result) => {
+                        window.location.replace('index.php');     
+                    });
+
+                    return;
+                }
+
+                if (contentType && contentType.indexOf("application/json") !== -1) {
+                    return response.json().then(function(json) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Opss',
+                            text: json.message,
+                        });
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Opss',
+                        text: 'Falha ao inserir!',
+                    });
+                }
+            }
+        );
+    }
+    
+
+    function getAll() {
+        //preencher datatable
+    }
 </script>
