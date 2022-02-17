@@ -9,7 +9,7 @@ require_once('header.php');
             <div class="card text-white bg-success mb-3">
                 <div class="card-header">Entrada</div>
                 <div class="card-body">
-                    <h4 class="card-title">R$ 4.500,00</h4>
+                    <h4 class="card-title"><span id="entrada"></span></h4>
                 </div>
             </div>
         </div>
@@ -17,7 +17,7 @@ require_once('header.php');
             <div class="card text-white bg-danger">
                 <div class="card-header">Saída</div>
                 <div class="card-body">
-                    <h4 class="card-title">R$ 2.500,00</h4>
+                    <h4 class="card-title"><span id="saida"></span></h4>
                 </div>
             </div>
         </div>
@@ -25,7 +25,7 @@ require_once('header.php');
             <div class="card text-white bg-primary">
                 <div class="card-header">Total</div>
                 <div class="card-body">
-                    <h4 class="card-title">R$ 2.000,00</h4>
+                    <h4 class="card-title"><span id="total"></span></h4>
                 </div>
             </div>
         </div>
@@ -36,7 +36,7 @@ require_once('header.php');
     </h3>
 
     <div class="text-center">
-        <button type="button" class="btn btn-outline-success" data-bs-toggle="modal" data-bs-target="#myModal">Nova Transação</button>
+        <button type="button" class="btn btn-outline-success" id="openModal">Nova Transação</button>
     </div>
 
     <table id="table_id" class="table table-dark table-hover mt-4 text-center">
@@ -51,22 +51,6 @@ require_once('header.php');
             </tr>
         </thead>
         <tbody>
-            <tr>
-                <td>Supermercado</td>
-                <td>R$ 200,00</td>
-                <td>Alimentação</td>
-                <td>27/02/2022</td>
-                <td><button class="btn btn-outline-primary">Atualizar</button></td>
-                <td><button class="btn btn-outline-danger">Apagar</button></td>
-            </tr>
-            <tr>
-                <td>Supermercado</td>
-                <td>R$ 200,00</td>
-                <td>Alimentação</td>
-                <td>27/02/2022</td>
-                <td><button class="btn btn-outline-primary">Atualizar</button></td>
-                <td><button class="btn btn-outline-danger">Apagar</button></td>
-            </tr>
         </tbody>
     </table>
 </div>
@@ -75,11 +59,12 @@ require_once('header.php');
     <div class="modal-dialog modal-fullscreen-sm-down">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Cadastro de Transações</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <h5 id="title-modal" class="modal-title">Cadastro de Transações</h5>
+                <button type="button" onclick="closeModal()" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <form>
+                    <input type="hidden" class="form-control" id="id">
                     <div class="mb-3">
                         <label for="title" class="form-label">Título</label>
                         <input type="text" class="form-control" id="title" required>
@@ -88,10 +73,10 @@ require_once('header.php');
                         <label for="value" class="form-label">Valor</label>
                         <input type="number" class="form-control" id="value" step="0.01" required>
                     </div>
-                    <input type="radio" class="btn-check" name="type" id="input" autocomplete="off" checked>
+                    <input type="radio" class="btn-check" value="1" name="option" id="input" autocomplete="off" checked>
                     <label class="btn btn-outline-success" for="input">Entrada</label>
 
-                    <input type="radio" class="btn-check" name="type" id="output" autocomplete="off">
+                    <input type="radio" class="btn-check" value="0" name="option" id="output" autocomplete="off">
                     <label class="btn btn-outline-danger" for="output">Saída</label>
                     <div class="mt-3">
                         <label for="category" class="form-label">Categoria</label>
@@ -106,21 +91,16 @@ require_once('header.php');
                     </div>
                 </form>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
-                <button onclick="addTransaction()" type="button" class="btn btn-primary">Cadastrar</button>
+            <div id="updateOrRegister" class="modal-footer">
             </div>
         </div>
     </div>
 </div>
 
-<?php
-require_once('foot.php');
-?>
-
 <script type="module">
     $(document).ready(function() {
-        $('#table_id').DataTable({
+
+        let table = $('#table_id').DataTable({
             "columns": [
                 null,
                 null,
@@ -138,17 +118,107 @@ require_once('foot.php');
             searching: false,
             paging: false,
             ordering: false,
-
         });
+
+        let total = 0;
+        let entrada = 0;
+        let saida = 0;
+
+        const url = "http://127.0.0.1:3000/transactions";
+
+        let token = window.sessionStorage.getItem("token");
+
+        fetch(url, {
+            method: "GET",
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            }
+        }).then(
+            (response) => {
+                if (response.status === 200) {
+                    response.json().then((json) => {
+                        let token = window.sessionStorage.getItem("token");
+                        let user = window.sessionStorage.getItem("user");
+
+                        user = JSON.parse(user);
+
+                        console.log(json)
+
+                        let buttonUpdate = '-';
+                        let buttonDelete = '-';
+
+                        for (let data of json) {
+                            buttonDelete = `<button onclick="deleteTransaction('${data.id}')" type="button" class="btn btn-outline-danger">Apagar</button>`;
+                            buttonUpdate = `
+                                    <div class="d-flex">  
+                                        <button onclick="update('${data.id}', '${data.title}', '${data.value}', '${data.type}', '${data.category}', )" class="btn btn-outline-primary">Atualizar</button>
+                                    </div>
+                                        
+                                    `;
+
+                            table.row.add([
+                                data.title,
+                                data.type == 1 ? "+" + data.value : "-" + data.value,
+                                data.category,
+                                data.created_at,
+                                buttonUpdate,
+                                buttonDelete,
+                            ]).draw(false);
+
+                            console.log(parseFloat(json.value));
+
+                            if (data.type) {
+                                entrada += parseFloat(data.value);
+                            } else {
+                                saida += parseFloat(data.value);
+                            }
+
+                            total = entrada - saida;
+                        }
+
+                        document.getElementById('entrada').innerHTML = entrada;
+                        document.getElementById('saida').innerHTML = saida;
+                        document.getElementById('total').innerHTML = total;
+
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Opss',
+                        text: 'Não foi possível obter os dados!',
+                    });
+                }
+            }
+        );
+    });
+</script>
+
+<?php
+require_once('foot.php');
+?>
+
+<script>
+    $("#openModal").on('click', function(e) {
+        document.getElementById("title-modal").innerHTML = "Cadastrar Transação";
+        document.getElementById("updateOrRegister").innerHTML = `
+            <button type="button" onclick="closeModal()" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+            <button onclick="register()" type="button" class="btn btn-primary">Cadastrar</button>
+        `;
+
+        $('#myModal').show()
     });
 
-    function addTransaction() {
+    function register() {
         const url = "http://127.0.0.1:3000/transactions";
 
         let title = document.getElementById('title').value;
         let value = document.getElementById('value').value;
-        let type = document.getElementById('type').value;
+        let type = document.querySelector('input[name="option"]:checked').value;
         let category = document.getElementById('category').value;
+
+        let token = window.sessionStorage.getItem("token");
 
         fetch(url, {
             method: "POST",
@@ -159,30 +229,21 @@ require_once('foot.php');
             },
             body: JSON.stringify({
                 title: title,
-                value: parseInt(value),
-                type: type,
+                value: parseFloat(value),
+                type: parseInt(type),
                 category: category
             }),
         }).then(
             async (response) => {
                 let contentType = response.headers.get("content-type");
 
-                if (response.status === 200) {
-
-                    json = await response.json();
-
-                    window.sessionStorage.setItem("token", json.token);
-                    window.sessionStorage.setItem("user", JSON.stringify(json.user));
-                    
-                    console.log(window.sessionStorage.getItem("token"));
-                    console.log(window.sessionStorage.getItem("user"));
-
+                if (response.status === 201) {
                     Swal.fire({
                         icon: 'success',
                         title: 'Sucesso',
                         text: 'Inserido com sucesso!',
                     }).then((result) => {
-                        window.location.replace('index.php');     
+                        window.location.replace('index.php');
                     });
 
                     return;
@@ -207,16 +268,48 @@ require_once('foot.php');
         );
     }
 
-    function delete() {
-        const url = "http://127.0.0.1:3000/transactions";
+    function update(id_data, title_data, value_data, type_data, category_data) {
+
+        document.getElementById("title-modal").innerHTML = "Atualizar Transação";
+
+        document.getElementById("updateOrRegister").innerHTML =
+            `
+            <button type="button" onclick="closeModal()" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+            <button onclick="updateData()" type="button" class="btn btn-primary">Atualizar</button>
+        `;
+
+        document.getElementById('title').value = title_data;
+        document.getElementById('value').value = value_data;
+        document.getElementById('category').value = category_data;
+        document.getElementById('id').value = id_data;
+
+        console.log(id_data, title_data, value_data, type_data, category_data)
+
+        $('#myModal').show()
+    }
+
+    function closeModal() {
+        document.getElementById('title').value = '';
+        document.getElementById('value').value = '';
+        document.getElementById('category').value = '';
+        document.getElementById('id').value = '';
+
+        $('#myModal').hide()
+    }
+
+    function updateData() {
+        let id = document.getElementById('id').value;
+
+        const url = "http://127.0.0.1:3000/transactions/" + id;
 
         let title = document.getElementById('title').value;
         let value = document.getElementById('value').value;
-        let type = document.getElementById('type').value;
+        let type = document.querySelector('input[name="option"]:checked').value;
         let category = document.getElementById('category').value;
 
+
         fetch(url, {
-            method: "POST",
+            method: "PUT",
             headers: {
                 'Accept': 'application/json',
                 'Content-Type': 'application/json',
@@ -224,8 +317,8 @@ require_once('foot.php');
             },
             body: JSON.stringify({
                 title: title,
-                value: parseInt(value),
-                type: type,
+                value: parseFloat(value),
+                type: parseInt(type),
                 category: category
             }),
         }).then(
@@ -233,21 +326,12 @@ require_once('foot.php');
                 let contentType = response.headers.get("content-type");
 
                 if (response.status === 200) {
-
-                    json = await response.json();
-
-                    window.sessionStorage.setItem("token", json.token);
-                    window.sessionStorage.setItem("user", JSON.stringify(json.user));
-                    
-                    console.log(window.sessionStorage.getItem("token"));
-                    console.log(window.sessionStorage.getItem("user"));
-
                     Swal.fire({
                         icon: 'success',
                         title: 'Sucesso',
-                        text: 'Inserido com sucesso!',
+                        text: 'Atualizado com sucesso!',
                     }).then((result) => {
-                        window.location.replace('index.php');     
+                        window.location.replace('index.php');
                     });
 
                     return;
@@ -265,54 +349,36 @@ require_once('foot.php');
                     Swal.fire({
                         icon: 'error',
                         title: 'Opss',
-                        text: 'Falha ao inserir!',
+                        text: 'Falha ao atualizar!',
                     });
                 }
             }
         );
     }
 
-    function atualizar() {
-        const url = "http://127.0.0.1:3000/transactions/{id}";
+    function deleteTransaction(id) {
+        const url = "http://127.0.0.1:3000/transactions/" + id;
 
-        let title = document.getElementById('title').value;
-        let value = document.getElementById('value').value;
-        let type = document.getElementById('type').value;
-        let category = document.getElementById('category').value;
+        let token = window.sessionStorage.getItem("token");
 
         fetch(url, {
-            method: "POST",
+            method: "DELETE",
             headers: {
                 'Accept': 'application/json',
                 'Content-Type': 'application/json',
                 'Authorization': 'Bearer ' + token,
             },
-            body: JSON.stringify({
-                title: title,
-                value: parseInt(value),
-                type: type,
-                category: category
-            }),
         }).then(
             async (response) => {
                 let contentType = response.headers.get("content-type");
 
                 if (response.status === 200) {
-
-                    json = await response.json();
-
-                    window.sessionStorage.setItem("token", json.token);
-                    window.sessionStorage.setItem("user", JSON.stringify(json.user));
-                    
-                    console.log(window.sessionStorage.getItem("token"));
-                    console.log(window.sessionStorage.getItem("user"));
-
                     Swal.fire({
                         icon: 'success',
                         title: 'Sucesso',
-                        text: 'Inserido com sucesso!',
+                        text: 'Apagado com sucesso!',
                     }).then((result) => {
-                        window.location.replace('index.php');     
+                        window.location.replace('index.php');
                     });
 
                     return;
@@ -330,15 +396,10 @@ require_once('foot.php');
                     Swal.fire({
                         icon: 'error',
                         title: 'Opss',
-                        text: 'Falha ao inserir!',
+                        text: 'Falha ao apagar!',
                     });
                 }
             }
         );
-    }
-    
-
-    function getAll() {
-        //preencher datatable
     }
 </script>

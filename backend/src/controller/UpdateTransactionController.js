@@ -17,7 +17,7 @@ class UpdateTransactionController {
       category,
     });
 
-    return response.status(201).json(transaction);
+    return response.status(200).json(transaction);
   }
 }
 

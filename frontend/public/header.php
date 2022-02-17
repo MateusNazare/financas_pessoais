@@ -20,72 +20,44 @@
                     </li>
                 </ul>
                 <form class="d-flex">
-                    <input class="form-control me-2" id = "search" type="search" placeholder="Search" aria-label="Search">
-                    <button onclick = "buscarPorId()" class="btn btn-outline-success" type="submit">Search</button>
+                    <input class="form-control me-2" id="search" type="search" placeholder="Search" aria-label="Search">
+                    <button onclick="buscarPorId()" class="btn btn-outline-success" type="submit">Search</button>
                 </form>
-                <a class="btn btn-outline-primary mx-2" href="login.php">Entrar</a>
+                <span id="log"></span>
             </div>
         </div>
     </nav>
 </header>
 
-<script>
-    function addTransaction() {
-        const url = "http://127.0.0.1:3000/transactions";
+<script type="text/javascript">
+    $('.nav-link').on('click', function() {
+        $(this).addClass('active').siblings('li').removeClass('active');
+    });
 
-        let id = document.getElementById('search').value;
 
-        fetch(url, {
-            method: "POST",
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
-                'Authorization': 'Bearer ' + token,
-            },
-            body: JSON.stringify({
-                id: parseInt(id)
-            }),
-        }).then(
-            async (response) => {
-                let contentType = response.headers.get("content-type");
+    let token = window.sessionStorage.getItem("token");
+    let user = window.sessionStorage.getItem("user");
 
-                if (response.status === 200) {
+    if (token) {
+        var login = document.getElementById("log").innerHTML = `
+            <div class="d-flex mx-2">
+                <a href="signin.php" class="btn btn-outline-primary mx-2">Atualizar conta</a>
+                <button onclick="logout()" class="btn btn-outline-danger">Sair</button>
+            </div>
+        `;
+    } else {
+        window.location.replace('login.php');
+    }
 
-                    json = await response.json();
+    function logout() {
+        sessionStorage.clear();
 
-                    window.sessionStorage.setItem("token", json.token);
-                    window.sessionStorage.setItem("user", JSON.stringify(json.user));
-                    
-                    console.log(window.sessionStorage.getItem("token"));
-                    console.log(window.sessionStorage.getItem("user"));
-
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Sucesso',
-                        text: 'Inserido com sucesso!',
-                    }).then((result) => {
-                        window.location.replace('index.php');     
-                    });
-
-                    return;
-                }
-
-                if (contentType && contentType.indexOf("application/json") !== -1) {
-                    return response.json().then(function(json) {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Opss',
-                            text: json.message,
-                        });
-                    });
-                } else {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Opss',
-                        text: 'Falha ao inserir!',
-                    });
-                }
-            }
-        );
+        Swal.fire({
+            icon: 'success',
+            title: 'Sucesso',
+            text: 'Você saiu!',
+        }).then((result) => {
+            window.location.replace('index.php');
+        });
     }
 </script>

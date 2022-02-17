@@ -22,7 +22,9 @@ app.use(express.json());
 app.use(router);
 
 app.use((err, request, response, next) => {
+  console.log(err.details)
   if (err instanceof AppError) {
+    
     return response.status(err.statusCode).json({
       message: err.message,
     });

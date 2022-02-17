@@ -8,7 +8,7 @@ require_once('header.php');
         <form class="col-md-6 mt-5">
             <div class="mb-3">
                 <label for="Nome" class="form-label">Nome</label>
-                <input type="text" class="form-control" id="Nome">
+                <input type="text" class="form-control" id="name">
             </div>
             <div class="mb-3">
                 <label for="email" class="form-label">Email</label>
@@ -18,8 +18,9 @@ require_once('header.php');
                 <label for="message" class="form-label">Mensagem</label>
                 <textarea class="form-control" id="message"></textarea>
             </div>
-            <button onclick="createMessage()" type="submit" class="btn btn-primary">Submit</button>
         </form>
+
+        <button onclick="createMessage()" class="btn btn-primary">Submit</button>
     </div>
 </div>
 

@@ -15,6 +15,7 @@ import { DeleteTransactionController } from "./controller/DeleteTransactionContr
 import { UpdateTransactionController } from "./controller/UpdateTransactionController.js";
 import { UpdateUserController } from "./controller/UpdateUserController.js";
 import { CreateMessageController } from "./controller/CreateMessageController.js";
+import { GetUserController } from "./controller/GetUserController.js";
 
 const router = Router();
 
@@ -26,6 +27,7 @@ const deleteTransactionController = new DeleteTransactionController();
 const updateTransactionController = new UpdateTransactionController();
 const updateUserController = new UpdateUserController();
 const createMessageController = new CreateMessageController();
+const getUserController = new GetUserController();
 
 router.post(
   "/users",
@@ -39,6 +41,12 @@ router.put(
   ensureAuthenticated,
   updateUserController.handle
 );
+
+router.get(
+  "/users",
+  ensureAuthenticated,
+  getUserController.handle
+)
 
 router.post("/sessions", authenticateUserController.handle);
 

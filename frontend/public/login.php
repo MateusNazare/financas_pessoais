@@ -30,7 +30,6 @@ require_once('head.php');
 </div>
 
  <script type="text/javascript">
-    console.log("teste")
     function toLogin() {
         const url = "http://127.0.0.1:3000/sessions";
 
@@ -52,11 +51,10 @@ require_once('head.php');
                 let contentType = response.headers.get("content-type");
 
                 if (response.status === 200) {
-
                     json = await response.json();
 
                     window.sessionStorage.setItem("token", json.token);
-                    window.sessionStorage.setItem("user", JSON.stringify(json.user));
+                    window.sessionStorage.setItem("user", JSON.stringify(json.user_id));
                     
                     console.log(window.sessionStorage.getItem("token"));
                     console.log(window.sessionStorage.getItem("user"));

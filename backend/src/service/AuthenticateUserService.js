@@ -30,6 +30,7 @@ class AuthenticateUserService {
 
         const tokenReturn = {
             token,
+            user_id: user.id,
         };
 
         return tokenReturn;
